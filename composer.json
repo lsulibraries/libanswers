@@ -1,0 +1,9 @@
+{
+  "name": "lsulibraries/libanswers",
+  "description": "Sends questions from Drupal forms to a LibAnswers queue through the LibAnswers API.",
+  "type": "drupal-custom-module",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "drupal/honeypot": "^2"
+  }
+}

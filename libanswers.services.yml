@@ -1,0 +1,7 @@
+services:
+  libanswers.client:
+    class: Drupal\libanswers\LibAnswersClient
+    arguments: ['@http_client', '@logger.channel.libanswers']
+  logger.channel.libanswers:
+    parent: logger.channel_base
+    arguments: ['libanswers']

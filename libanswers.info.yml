@@ -1,0 +1,9 @@
+name: LibAnswers
+description: Sends questions from Drupal forms to a LibAnswers queue through the LibAnswers API, with Honeypot spam protection.
+package: Custom
+
+type: module
+core_version_requirement: ^10 || ^11
+
+dependencies:
+  - honeypot:honeypot

@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * LibAnswers: questions from Drupal to a LibAnswers queue.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_theme().
+ *
+ * The question form's template, for themes to override with their own
+ * markup (libanswers-ask-form.html.twig).
+ */
+function libanswers_theme(): array {
+  return [
+    'libanswers_ask_form' => [
+      'render element' => 'form',
+    ],
+  ];
+}
