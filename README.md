@@ -69,13 +69,15 @@ fields) with the header `X-LibAnswers-Fetch: 1` and gets JSON:
 
 ## The form alone, for a drawer
 
-`/libanswers/ask/{queue}` (`AskFormController`) answers with the queue's
+`/v2/libanswers/ask/{queue}` (`AskFormController`) answers with the queue's
 form and nothing around it, in the site's theme, for a page's script to
-fetch and place. Palefire's Ask Us drawer uses `/libanswers/ask/2616`, so
+fetch and place. Palefire's Ask Us drawer uses `/v2/libanswers/ask/2616`, so
 pages carry no form until the drawer opens. The form posts back to the same
 address, and AskForm answers it as on a page. A queue with no fields in
 `AskForm::QUEUE_FIELDS` gets a 404. The response is cached like a page and
-sends no libraries: the page brings the form's script and styles.
+sends no libraries: the page brings the form's script and styles. It is
+under `/v2` because lib.lsu.edu picks the theme by address (Palefire for
+`/v2`, Origami elsewhere), and the drawer needs Palefire's markup.
 
 ## Notes
 

@@ -1,8 +1,11 @@
 # The question form alone, no page around it, for a page's script to fetch
 # and place in a drawer (the Palefire theme's Ask Us drawer). It posts back
 # here: a background post (X-LibAnswers-Fetch: 1) gets AskForm's JSON.
+# Under /v2: lib.lsu.edu draws every /v2 address in the Palefire theme and
+# everything else in Origami, and the form has to come back in Palefire's
+# markup. Moves with /v2 when the site drops it.
 libanswers.ask_form:
-  path: '/libanswers/ask/{queue}'
+  path: '/v2/libanswers/ask/{queue}'
   defaults:
     _controller: '\Drupal\libanswers\Controller\AskFormController::form'
   methods: [GET, POST]
