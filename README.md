@@ -5,7 +5,8 @@ the LibAnswers API (v1.1, `POST /ticket/create`), so staff answer them in
 LibAnswers as they do questions sent from AskUs. Honeypot guards the form.
 
 Used by the Palefire theme's Ask Special Collections section on
-`/v2/special` (queue 2616, Special Collections).
+`/v2/special` (queue 2616, Special Collections) and its Ask Us drawer
+(2616, and 237, the Main Library's general questions).
 
 ## Why not post to the AskUs widget's endpoint
 
@@ -75,7 +76,12 @@ fetch and place. Palefire's Ask Us drawer uses `/v2/libanswers/ask/2616`, so
 pages carry no form until the drawer opens. The form posts back to the same
 address, and AskForm answers it as on a page. A queue with no fields in
 `AskForm::QUEUE_FIELDS` gets a 404. The response is cached like a page and
-sends no libraries: the page brings the form's script and styles. It is
+sends no libraries: the page brings the form's script and styles. Each queue's
+fields are in `AskForm::QUEUE_FIELDS`, copied from its AskUs widget: a
+field can be optional, a text field, or a follow-up asked only when
+another field has a value (`when`). The form lists them for the theme as
+`#libanswers_fields` and `#libanswers_when`; a follow-up is sent only when
+its rule matches. It is
 under `/v2` because lib.lsu.edu picks the theme by address (Palefire for
 `/v2`, Origami elsewhere), and the drawer needs Palefire's markup.
 

@@ -36,9 +36,37 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 final class AskForm extends FormBase {
 
   /**
-   * Each queue's own fields: name => [label, options]. Its AskUs widget's.
+   * Each queue's own fields, as its AskUs widget has them.
+   *
+   * Name => [label, options, settings]. Options NULL makes a text field.
+   * Settings (optional):
+   * - required: FALSE for an optional field (default TRUE).
+   * - when: [field, value], a follow-up asked only once that field has that
+   *   value, as the widget's own rules do. It's sent only then; the page's
+   *   script shows it (the form's #libanswers_when lists the rules).
+   * - maxlength: for a text field (default 250).
    */
   private const QUEUE_FIELDS = [
+    // Main Library, general questions (widget 19448). Its rules: Research
+    // Help asks whether it's for a course, and Yes asks which one.
+    237 => [
+      'val7' => ['I need help with', [
+        11 => 'Accessing Electronic Resources',
+        15 => 'Borrowing from the LSU Library',
+        16 => 'Disability Services',
+        13 => 'E-textbooks',
+        18 => 'I need help using the library website',
+        12 => 'InterLibrary Loan',
+        2 => 'Research Help',
+        17 => 'Website Feedback',
+        6 => 'Other',
+      ]],
+      'custom1' => ['Is your research question for a specific course?', [
+        1 => 'Yes',
+        2 => 'No',
+      ], ['required' => FALSE, 'when' => ['val7', '2']]],
+      'custom2' => ['Course name, for example ENGL 2300', NULL, ['required' => FALSE, 'when' => ['custom1', '1'], 'maxlength' => 500]],
+    ],
     // Special Collections (widget 19447).
     2616 => [
       'val1' => ['Affiliation', [
@@ -99,16 +127,37 @@ final class AskForm extends FormBase {
     // The page's own script checks the fields and says what's wrong.
     $form['#attributes']['novalidate'] = 'novalidate';
 
-    foreach (self::QUEUE_FIELDS[$queue] ?? [] as $name => [$label, $options]) {
+    // For the theme: which queue, its own fields in order, and the
+    // follow-ups' rules (name => [field, value]).
+    $form['#libanswers_queue'] = $queue;
+    $form['#libanswers_fields'] = array_keys(self::QUEUE_FIELDS[$queue] ?? []);
+    $form['#libanswers_when'] = [];
+    foreach (self::QUEUE_FIELDS[$queue] ?? [] as $name => $field) {
+      [$label, $options] = $field;
+      $settings = ($field[2] ?? []) + ['required' => TRUE, 'when' => NULL, 'maxlength' => 250];
       $form[$name] = [
-        '#type' => 'select',
         // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
         '#title' => $this->t($label),
-        '#options' => array_map(fn (string $option) => $this->t($option), $options),
-        '#empty_option' => $this->t('Select one'),
-        '#empty_value' => '',
-        '#required' => TRUE,
+        '#required' => $settings['required'],
       ];
+      if ($options === NULL) {
+        $form[$name] += [
+          '#type' => 'textfield',
+          '#maxlength' => $settings['maxlength'],
+          '#attributes' => ['autocomplete' => 'off'],
+        ];
+      }
+      else {
+        $form[$name] += [
+          '#type' => 'select',
+          '#options' => array_map(fn (string $option) => $this->t($option), $options),
+          '#empty_option' => $this->t('Select one'),
+          '#empty_value' => '',
+        ];
+      }
+      if ($settings['when']) {
+        $form['#libanswers_when'][$name] = $settings['when'];
+      }
     }
     $form['pname'] = [
       '#type' => 'textfield',
@@ -187,8 +236,17 @@ final class AskForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $queue = (int) $form_state->get('libanswers_queue');
     $fields = ['quid' => $queue];
-    foreach (array_keys(self::QUEUE_FIELDS[$queue] ?? []) as $name) {
-      $fields[$name] = (string) $form_state->getValue($name);
+    foreach (self::QUEUE_FIELDS[$queue] ?? [] as $name => $field) {
+      $value = trim((string) $form_state->getValue($name));
+      // A follow-up goes only when its question was sent with its value
+      // (fields are listed after the one they follow).
+      [$parent, $wanted] = $field[2]['when'] ?? [NULL, NULL];
+      if ($parent !== NULL && ($fields[$parent] ?? NULL) !== (string) $wanted) {
+        continue;
+      }
+      if ($value !== '') {
+        $fields[$name] = $value;
+      }
     }
     foreach (['pquestion', 'pdetails', 'pname', 'pemail'] as $name) {
       $fields[$name] = trim((string) $form_state->getValue($name));
