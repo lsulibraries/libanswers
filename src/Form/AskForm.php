@@ -66,6 +66,16 @@ final class AskForm extends FormBase {
   public function __construct(private readonly LibAnswersClient $client) {}
 
   /**
+   * The queues this form has fields for (AskFormController's 404 check).
+   *
+   * @return int[]
+   *   Queue IDs.
+   */
+  public static function queues(): array {
+    return array_keys(self::QUEUE_FIELDS);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): static {

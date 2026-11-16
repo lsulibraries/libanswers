@@ -1,0 +1,11 @@
+# The question form alone, no page around it, for a page's script to fetch
+# and place in a drawer (the Palefire theme's Ask Us drawer). It posts back
+# here: a background post (X-LibAnswers-Fetch: 1) gets AskForm's JSON.
+libanswers.ask_form:
+  path: '/libanswers/ask/{queue}'
+  defaults:
+    _controller: '\Drupal\libanswers\Controller\AskFormController::form'
+  methods: [GET, POST]
+  requirements:
+    _access: 'TRUE'
+    queue: '\d+'

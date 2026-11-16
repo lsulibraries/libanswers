@@ -67,6 +67,16 @@ fields) with the header `X-LibAnswers-Fetch: 1` and gets JSON:
 - `502 {"ok": false}`: LibAnswers refused it; the reason is in the log
   (`drush watchdog:show --type=libanswers`).
 
+## The form alone, for a drawer
+
+`/libanswers/ask/{queue}` (`AskFormController`) answers with the queue's
+form and nothing around it, in the site's theme, for a page's script to
+fetch and place. Palefire's Ask Us drawer uses `/libanswers/ask/2616`, so
+pages carry no form until the drawer opens. The form posts back to the same
+address, and AskForm answers it as on a page. A queue with no fields in
+`AskForm::QUEUE_FIELDS` gets a 404. The response is cached like a page and
+sends no libraries: the page brings the form's script and styles.
+
 ## Notes
 
 - Honeypot's hidden field only, not its time limit: the time limit turns off
